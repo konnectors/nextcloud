@@ -8,30 +8,37 @@ const {
 } = require('cozy-konnector-libs')
 const request = requestFactory({
   // debug: true,
-  cheerio: true,
-  json: false,
+  cheerio: false,
+  json: true,
   jar: true
 })
-
-const VENDOR = 'nextcloud.cozycloud.cc'
-const baseUrl = 'https://nextcloud.cozycloud.cc'
 
 module.exports = new BaseKonnector(start)
 
 async function start(fields, cozyParameters) {
   log('info', 'Authenticating ...')
   if (cozyParameters) log('debug', 'Found COZY_PARAMETERS')
-  await authenticate.bind(this)(fields.login, fields.password)
+  await authenticate.bind(this)(fields)
   log('info', 'Successfully logged in')
-  log('info', 'Fetching the list of documents')
-  log('info', 'Parsing list of documents')
-  const documents = await parseDocuments()
-  log('info', 'Saving data to Cozy')
-  await this.saveBills(documents, fields, {
-    identifiers: ['nextcloud']
-  })
 }
 
-function authenticate(username, password) {}
-
-function parseDocuments() {}
+async function authenticate(fields) {
+  const loginPage = await request(`${fields.url}/login`)
+  const requestToken = loginPage.match(/data-requesttoken="(.*)">/)[1]
+  const postLoginPage = await request(`${fields.url}/login`, {
+    method: 'POST',
+    form: {
+      user: fields.login,
+      password: fields.password,
+      timezone: 'Europe/Paris',
+      timezone_offset: 2,
+      requesttoken: requestToken
+    },
+    followRedirect: true,
+    resolveWithFullResponse: true
+  })
+  if (postLoginPage.request.uri.href !== `${fields.url}/apps/dashboard/`) {
+    log('warn', 'something went wrong with login')
+    throw new Error('LOGIN_FAILED')
+  }
+}

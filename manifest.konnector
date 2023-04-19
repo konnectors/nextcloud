@@ -15,6 +15,10 @@
     },
     "password": {
       "type": "password"
+    },
+    "url": {
+      "type": "text",
+      "label": "Your nextcloud full url (ex. \"https://nextcloud.cozycloud.cc\")"
     }
   },
   "folders": [{"defaultDir": "$administrative/$konnector/$account"}],
