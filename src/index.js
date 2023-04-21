@@ -6,6 +6,8 @@ const {
   log,
   utils
 } = require('cozy-konnector-libs')
+const { NextcloudClient } = require('./nextcloudClient')
+
 const request = requestFactory({
   // debug: true,
   cheerio: false,
@@ -18,8 +20,9 @@ module.exports = new BaseKonnector(start)
 async function start(fields, cozyParameters) {
   log('info', 'Authenticating ...')
   if (cozyParameters) log('debug', 'Found COZY_PARAMETERS')
-  await authenticate.bind(this)(fields)
+  const userCookies = await authenticate.bind(this)(fields)
   log('info', 'Successfully logged in')
+  await getUserContacts.bind(this)(fields, userCookies)
 }
 
 async function authenticate(fields) {
@@ -41,4 +44,26 @@ async function authenticate(fields) {
     log('warn', 'something went wrong with login')
     throw new Error('LOGIN_FAILED')
   }
+  const cookies = postLoginPage.request.headers.cookie.split('; ')
+  let userNumber
+  let ncToken
+  for (const cookie of cookies) {
+    if (cookie.startsWith('nc_username')) {
+      userNumber = cookie.split('=')[1]
+    }
+    if (cookie.startsWith('nc_token')) {
+      ncToken = cookie.split('=')[1]
+    }
+  }
+  log('info', ncToken)
+  return { ncToken, userNumber }
+}
+
+async function getUserContacts(fields, userCookies) {
+  log('info', 'getUserContacts starts')
+  const ncClient = new NextcloudClient({ fields, userCookies })
+  const client = ncClient.createClient()
+  log('info', client)
+  const XMLUserContacts = await ncClient.getUserContacts(client)
+  // log('info', XMLUserContacts)
 }
