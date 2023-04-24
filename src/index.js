@@ -1,12 +1,7 @@
 /* eslint-disable no-unused-vars */
-const {
-  BaseKonnector,
-  requestFactory,
-  scrape,
-  log,
-  utils
-} = require('cozy-konnector-libs')
+const { BaseKonnector, requestFactory, log } = require('cozy-konnector-libs')
 const { NextcloudClient } = require('./nextcloudClient')
+const VCardParser = require('cozy-vcard')
 
 const request = requestFactory({
   // debug: true,
@@ -15,6 +10,13 @@ const request = requestFactory({
   jar: true
 })
 
+const cozyVCardParser = {
+  parse: data => {
+    const parser = new VCardParser(data)
+    return parser.contacts
+  }
+}
+
 module.exports = new BaseKonnector(start)
 
 async function start(fields, cozyParameters) {
@@ -22,7 +24,7 @@ async function start(fields, cozyParameters) {
   if (cozyParameters) log('debug', 'Found COZY_PARAMETERS')
   const userCookies = await authenticate.bind(this)(fields)
   log('info', 'Successfully logged in')
-  await getUserContacts.bind(this)(fields, userCookies)
+  const userContacts = await getUserContacts.bind(this)(fields, userCookies)
 }
 
 async function authenticate(fields) {
@@ -46,24 +48,26 @@ async function authenticate(fields) {
   }
   const cookies = postLoginPage.request.headers.cookie.split('; ')
   let userNumber
-  let ncToken
   for (const cookie of cookies) {
     if (cookie.startsWith('nc_username')) {
       userNumber = cookie.split('=')[1]
     }
-    if (cookie.startsWith('nc_token')) {
-      ncToken = cookie.split('=')[1]
-    }
   }
-  log('info', ncToken)
-  return { ncToken, userNumber }
+  return userNumber
 }
 
-async function getUserContacts(fields, userCookies) {
+async function getUserContacts(fields, userNumber) {
   log('info', 'getUserContacts starts')
-  const ncClient = new NextcloudClient({ fields, userCookies })
+  const ncClient = new NextcloudClient({ fields, userNumber })
   const client = ncClient.createClient()
-  log('info', client)
-  const XMLUserContacts = await ncClient.getUserContacts(client)
-  // log('info', XMLUserContacts)
+  const contactsVCards = await ncClient.getUserContacts(client)
+  let parsedContacts = []
+  for (const contactVCard of contactsVCards) {
+    const contact = cozyVCardParser.parse(contactVCard)
+    if (contact[0].n.match(';;;')) {
+      contact[0].n = contact[0].n.replace(/;;;/g, '').replace(';', ' ').trim()
+    }
+    parsedContacts.push(contact[0])
+  }
+  return parsedContacts
 }
