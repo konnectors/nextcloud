@@ -1,13 +1,13 @@
 {
   "version": "1.0.0",
-  "name": "Connector template",
+  "name": "Nextcloud",
   "type": "konnector",
   "language": "node",
   "icon": "icon.svg",
-  "slug": "template",
-  "source": "git@github.com:konnectors/template.git",
+  "slug": "nextcloud",
+  "source": "git@github.com:konnectors/nextcloud.git",
   "editor": "Cozy",
-  "vendor_link": "Link to the target website",
+  "vendor_link": "Link",
   "categories": ["others"],
   "fields": {
     "login": {
@@ -15,12 +15,11 @@
     },
     "password": {
       "type": "password"
+    }, 
+    "url": {
+      "type": "text"
     }
   },
-  "folders": [{"defaultDir": "$administrative/$konnector/$account"}],
-  "data_types": [
-    "bill"
-  ],
   "screenshots": [],
   "permissions": {
     "bank operations": {
@@ -43,6 +42,12 @@
   "langs": ["fr", "en"],
   "locales": {
     "fr": {
+      "fields": {
+        "url": {
+          "label": "Url de l'instance Nextcloud",
+          "placeholder": "https://mynextcloud.example.com"
+        }
+      },  
       "short_description": "Récupère la liste de livres",
       "long_description": "Récupère la liste de livre sur le site exemple",
       "permissions": {
@@ -61,6 +66,12 @@
       }
     },
     "en": {
+      "fields": {
+        "url": {
+          "label": "Url of Nextcloud instance",
+          "placeholder": "https://mynextcloud.example.com"
+        }
+      },  
       "short_description": "Fetch a list of books",
       "long_description": "Fetch a list of books from the example website",
       "permissions": {
@@ -79,6 +90,5 @@
       }
     }
   },
-  "banksTransactionRegExp": "\\bbooks\\b",
   "manifest_version": "2"
 }

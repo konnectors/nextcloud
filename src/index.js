@@ -44,8 +44,8 @@ async function createShortcut(url) {
       identifier: ['shortcuts'],
       sourceAccount: 'Nextcloud',
       sourceAccountIdentifier: 'NextcloudConnector',
-      fileIdAttributes: [`nextCloud ${url}`],
-      //subPath: "/Applications de l'école"
+      fileIdAttributes: [`nextCloud ${url}`]
+      // subPath: "/Applications de l'école"
     }
   )
 }
