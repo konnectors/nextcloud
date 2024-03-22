@@ -5,9 +5,7 @@ node_js:
 env:
   global:
   - MATTERMOST_CHANNEL=publication
-  # Token to access Cozy Registry, you should replace it with a token specific to this konnector
   - secure: BgLoSPUecHA7qWjSp7qFLaPkl/o5hJmihffsXh8FveogYtbFRKOZoY+0mwCBcYBeuO3oAieObHF0ZZ0inMD1DPezC5wWlMku85zp7oUW0XfJn++o+AaG1yCRaQN9s4XTR5Y5nBVBEsFe3QQr+6vdPuHY4V/JQT+auAPjs7rBVJ78RFO3munKi6sEA2UMo7ztKB/OySqHLF+BDJTRpA9pJFlI5MI4FGt5971xEM0qj6wFKSj0s/3r+S80i34Wy/XxI0EGCBmz+XQTZexA5oFE/JqePw88PTYOTCb/eTHL1aS7CM6Ue/9VIDneYmP16tDVABSdYy70o9ttb59D0CL5pSBiNtF4ZDptrKy55f5joVaHIeoQdEcFOsiNc0XU40FzxGbUM0NPTFlo68se/XqcxwWLq3/9nPTwLSFnxEKurRHKtS76P6stfaKVyejwvHYol4AZkT6TalD1ai3uRnagGRvUruxAGlwWvfJ1uGbJAEpiYbj+Wako5i6tuDnpp0R829GraX/9yZJkrCA1PjslTO2AwYzFdnRbbxao5QEZ7aPbjd2tRjWiTXovBpjgokR0qjn9Et18Jj7qztg2C+SEvYtITFqztBjr2DvDG4WlsRCWbHHIj+DJLYZuRLUre/cMDbDc/z2ixl881KvI6euotFVC+5T4kSatcHO9lAhgjw0=
-  # MATTERMOST_HOOK_URL
   - secure: yqhTF1HL3wpFT9CGotaT1FRS28ZKBi2C3gOkJSb0I+8JCbD0NFdF6Du4icMUyjwksRwEL0EbKn7K9Uq9F4kH+KRMcxBBVcrf3/sB3tMjBqKqFgdQxWpvLE1MxaKd6BBSzzkth3sdk+vy/jOwIp9h2OPoOv8BetyzgNFwwEM/AoS1+wnt7sskG7OmmF0f4bfcpi6ye/t6oy/Fn+60U3vi7iOaJzogtaC3b0KKRJAhQWaqqTS9pSiIC7do6BOBwRVpzHzgOYqFH5nY51tSJQc4rYhdSV1Npuez5oSDllhvxlh45PLh6y4iwxD3sgfvSOkPA6Mwfq1Vj94jXXEZQWgQ+gtud9KhobYMxmFTGnZNSHcsM1sfddvwSAq828ByohV380dl3m7yiTZ75GbDdxqWktZ7SWom4zY7Z7DjNLzWb0T+VjB4W9DoCpiKiue8t4HZP9uIMuzc7svjaj0z/xmHVzMw+lgiYnoxsoc4p36TFqlmM1tz2JNFwi/FxucN/IDy1bmfQSSuBImhyvKuFDdjbKVAAoyXvPnH0Ec0E6hO8CtQAuMOyLehDHvv38VTah4KQcDZejJJ4H8vG7BSfg0AVHHELgFNZWNlEFkAMIJ+cr+ZR3z7+KHTOtuYBnlBz7AdBRLn1AKixhTYYLgTMyZciJ4a1jLQY19GytjfxbSzh/s=
 cache:
   yarn: true
@@ -25,16 +23,17 @@ deploy:
   skip-cleanup: true
   script: DEPLOY_BRANCH=build yarn deploy && yarn cozyPublish
   on:
-    branch: ['master','main']
+    branch:
+    - master
+    - main
 - provider: script
   skip-cleanup: true
   script: DEPLOY_BRANCH=build yarn deploy && yarn cozyPublish
   on:
     tags: true
 before_install:
-# run the yarn travisDeployKey command to generate this
-# - openssl aes-256-cbc -K $encrypted_8ebb1ef83f64_key -iv $encrypted_8ebb1ef83f64_iv
-#   -in github_deploy_key.enc -out /tmp/github_deploy_key -d
+- openssl aes-256-cbc -K $encrypted_8ebb1ef83f64_key -iv $encrypted_8ebb1ef83f64_iv
+  -in github_deploy_key.enc -out /tmp/github_deploy_key -d
 - eval "$(ssh-agent -s)"
 - if [[ -f /tmp/github_deploy_key ]]; then chmod 600 /tmp/github_deploy_key; fi
 - if [[ -f /tmp/github_deploy_key ]]; then ssh-add /tmp/github_deploy_key; fi
