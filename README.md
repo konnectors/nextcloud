@@ -1,4 +1,4 @@
-[Cozy][cozy] __YOUR_SUPER_NEW_KONNECTOR_NAME__
+[Cozy][cozy] Nextcloud connector
 =======================================
 
 What's Cozy?
@@ -11,9 +11,7 @@ What's Cozy?
 What is this konnector about ?
 ------------------------------
 
-This konnector retrieves your __SOME_DATA__ and __SOME_OTHER_DATA__ from __SERVICE__
-
-__YOUR_DESCRIPTION_HERE__
+This konnector link your cozy to a nextcloud instance
 
 ### Open a Pull-Request
 
