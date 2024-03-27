@@ -1,3 +1,7 @@
+process.env.SENTRY_DSN =
+  process.env.SENTRY_DSN ||
+  'https://b94860ff2b1e890530cbc483c7cf5887@errors.cozycloud.cc/75'
+
 const {
   BaseKonnector,
   requestFactory,
@@ -39,7 +43,7 @@ async function createShortcut(url, folderPath) {
       {
         url,
         filename,
-        filestream: `[InternetShortcut]\nURL=${url}`,
+        filestream: `[InternetShortcut]\nURL=${url}`
       }
     ],
     { folderPath },
