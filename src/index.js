@@ -5,6 +5,7 @@ const {
   errors,
   cozyClient
 } = require('cozy-konnector-libs')
+
 const request = requestFactory({
   cheerio: false,
   json: true,
@@ -32,13 +33,13 @@ async function checkIfIsNextcloud(url) {
 }
 
 async function createShortcut(url, folderPath) {
+  const filename = `${new URL(url).host} (Nextcloud).url`
   await this.saveFiles(
     [
       {
         url,
-        filename: `Nextcloud.url`,
+        filename,
         filestream: `[InternetShortcut]\nURL=${url}`,
-        shouldReplaceFile: true
       }
     ],
     { folderPath },
