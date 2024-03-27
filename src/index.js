@@ -2,7 +2,8 @@ const {
   BaseKonnector,
   requestFactory,
   log,
-  errors
+  errors,
+  cozyClient
 } = require('cozy-konnector-libs')
 const request = requestFactory({
   cheerio: false,
@@ -14,9 +15,10 @@ const request = requestFactory({
 module.exports = new BaseKonnector(start)
 
 async function start(fields) {
-  await checkIfIsNextcloud(fields.url)
-  await createShortcut.bind(this)(fields.url)
-  return
+  const url = cleanUrl(fields.url)
+  await checkIfIsNextcloud(url)
+  const folderPath = await createSharedDrivesDirectory()
+  await createShortcut.bind(this)(url, folderPath)
 }
 
 async function checkIfIsNextcloud(url) {
@@ -29,7 +31,7 @@ async function checkIfIsNextcloud(url) {
   }
 }
 
-async function createShortcut(url) {
+async function createShortcut(url, folderPath) {
   await this.saveFiles(
     [
       {
@@ -39,13 +41,27 @@ async function createShortcut(url) {
         shouldReplaceFile: true
       }
     ],
-    { folderPath: '/' },
+    { folderPath },
     {
+      validateFile: () => true,
       identifier: ['shortcuts'],
-      sourceAccount: 'Nextcloud',
-      sourceAccountIdentifier: 'NextcloudConnector',
       fileIdAttributes: [`nextCloud ${url}`]
-      // subPath: "/Applications de l'école"
     }
   )
+}
+
+async function createSharedDrivesDirectory() {
+  // This call create if needed the directory and return the io.cozy.files
+  const sharedDriveDir = await cozyClient.fetchJSON(
+    'POST',
+    `/files/shared-drives`
+  )
+  return sharedDriveDir.attributes.path
+}
+
+function cleanUrl(rawUrl) {
+  const url = new URL(rawUrl)
+  // We force usage of https here if the user forget it
+  // We keep the port number if present
+  return `https://${url.host}/`
 }
