@@ -23,7 +23,7 @@ async function start(fields) {
   const url = cleanUrl(fields.url)
   await checkIfIsNextcloud(url)
   const folderPath = await createSharedDrivesDirectory()
-  await createShortcut.bind(this)(url, folderPath)
+  await createShortcut.bind(this)(url, folderPath, this.login)
 }
 
 async function checkIfIsNextcloud(url) {
@@ -36,7 +36,7 @@ async function checkIfIsNextcloud(url) {
   }
 }
 
-async function createShortcut(url, folderPath) {
+async function createShortcut(url, folderPath, login) {
   const filename = `${new URL(url).host} (Nextcloud).url`
   await this.saveFiles(
     [
@@ -49,8 +49,9 @@ async function createShortcut(url, folderPath) {
     { folderPath },
     {
       validateFile: () => true,
-      identifier: ['shortcuts'],
-      fileIdAttributes: [`nextCloud ${url}`]
+      fileIdAttributes: ['folderPath', 'filename'],
+      sourceAccount: this.accountId,
+      sourceAccountIdentifier: `${url} ${login}`
     }
   )
 }

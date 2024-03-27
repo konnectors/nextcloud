@@ -45,7 +45,7 @@
       "long_description": "Récupère la liste de livre sur le site exemple",
       "permissions": {
         "files": {
-          "description": "Utilisé pour sauvegarder les factures"
+          "description": "Utilisé pour sauvegarder les fichiers"
         },
         "accounts": {
           "description": "Utilisé pour obtenir les données du compte"
@@ -63,7 +63,7 @@
       "long_description": "Fetch a list of books from the example website",
       "permissions": {
         "files": {
-          "description": "Required to save the bills"
+          "description": "Required to save the files"
         },
         "accounts": {
           "description": "Required to get the account's data"
