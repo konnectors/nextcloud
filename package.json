@@ -25,6 +25,7 @@
   },
   "scripts": {
     "start": "node ./src/index.js",
+    "onDeleteAccount": "cozy-konnector-dev src/onDeleteAccount.js",
     "dev": "cozy-konnector-dev",
     "standalone": "cozy-konnector-standalone",
     "pretest": "npm run clean",

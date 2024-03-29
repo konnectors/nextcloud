@@ -14,7 +14,7 @@ const request = requestFactory({
   cheerio: false,
   json: true,
   jar: true,
-  debug: true
+  debug: false
 })
 
 module.exports = new BaseKonnector(start)
@@ -23,7 +23,7 @@ async function start(fields) {
   const url = cleanUrl(fields.url)
   await checkIfIsNextcloud(url)
   const folderPath = await createSharedDrivesDirectory()
-  await createShortcut.bind(this)(url, folderPath, this.login)
+  await createShortcut.bind(this)(url, folderPath, fields.login)
 }
 
 async function checkIfIsNextcloud(url) {
@@ -37,21 +37,25 @@ async function checkIfIsNextcloud(url) {
 }
 
 async function createShortcut(url, folderPath, login) {
-  const filename = `${new URL(url).host} (Nextcloud).url`
+  const instance = `${new URL(url).host}`
   await this.saveFiles(
     [
       {
-        url,
-        filename,
-        filestream: `[InternetShortcut]\nURL=${url}`
+        nextcloudInstance: instance,
+        filename: `${instance} (Nextcloud).url`,
+        filestream: `[InternetShortcut]\nURL=${url}`,
+        fileAttributes: {
+          metadata: {
+            instance
+          }
+        }
       }
     ],
     { folderPath },
     {
       validateFile: () => true,
-      fileIdAttributes: ['folderPath', 'filename'],
-      sourceAccount: this.accountId,
-      sourceAccountIdentifier: `${url} ${login}`
+      fileIdAttributes: ['nextcloudInstance'],
+      sourceAccountIdentifier: login
     }
   )
 }
