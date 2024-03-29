@@ -1,4 +1,4 @@
-// module.exports = require('cozy-konnector-build/webpack.config')
+// Not using cozy-konnector-build/webpack.config because of the dual entry point on L39
 const fs = require('fs')
 var path = require('path')
 
