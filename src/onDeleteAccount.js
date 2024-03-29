@@ -16,7 +16,8 @@ async function onDeleteAccount() {
     .where({
       'cozyMetadata.createdByApp': 'nextcloud',
       'cozyMetadata.sourceAccount': cozyFields.account,
-      type: 'file'
+      type: 'file',
+      class: 'shortcut'
     })
     .partialIndex({
       trashed: false
@@ -24,18 +25,17 @@ async function onDeleteAccount() {
     .indexFields([
       'cozyMetadata.createdByApp',
       'cozyMetadata.sourceAccount',
-      'type'
+      'type',
+      'class'
     ])
   const files = await cozyClient.new.queryAll(filesQuery)
   if (files.length < 1) {
     log('warn', 'No link found to delete')
   }
   for (const file of files) {
-    if (file.attributes.class === 'shortcut') {
-      await cozyClient.new
-        .collection('io.cozy.files')
-        .deleteFilePermanently(file.id)
-      log('info', 'Link to instance correctly deleted')
-    }
+    await cozyClient.new
+      .collection('io.cozy.files')
+      .deleteFilePermanently(file.id)
+    log('info', 'Link to instance correctly deleted')
   }
 }
