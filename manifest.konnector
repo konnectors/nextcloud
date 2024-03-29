@@ -7,7 +7,7 @@
   "slug": "nextcloud",
   "source": "git@github.com:konnectors/nextcloud.git",
   "editor": "Cozy",
-  "categories": ["others"],
+  "categories": ["online_services"],
   "fields": {
     "login": {
       "type": "text"
@@ -41,8 +41,8 @@
           "placeholder": "https://mynextcloud.example.com"
         }
       },  
-      "short_description": "Récupère la liste de livres",
-      "long_description": "Récupère la liste de livre sur le site exemple",
+      "short_description": "Accéder d'un clic depuis Cozy Drive à votre espace de stockage NextCloud",
+      "long_description": "Votre entreprise et/ou association vous met à disposition un compte Nextcloud ?\n\n<br>**Connectez votre compte NextCloud à votre Cozy pour**\n\n- accéder d'un clic depuis Cozy Drive à votre espace de stockage NextCloud\n\n**Accédez directement à votre Drive Nextcloud dans votre Drive personnel**\n\nA l'aide de ce connecteurs, votre Cozy s'intègre dans votre quotidien et vous facilite l'accès à tous vos comptes Nextcloud !\n\nConnectez et accédez d'un seul clic à tous vos différents espaces de stockages en ligne directement depuis l'application Cozy Drive.\n\n<br>**Configuration**\n\nPour connecter votre compte, il vous suffit de renseigner dans les champs :\n\n- l'url du serveur NextCloud\n- votre identifiant pour accéder à votre NextCloud",
       "permissions": {
         "files": {
           "description": "Utilisé pour sauvegarder les fichiers"
@@ -59,8 +59,8 @@
           "placeholder": "https://mynextcloud.example.com"
         }
       },  
-      "short_description": "Fetch a list of books",
-      "long_description": "Fetch a list of books from the example website",
+      "short_description": "Access in just one click to your NextCloud storage space from Cozy Drive",
+      "long_description": "Your company and/or association provides you with a Nextcloud account?\n\n<br>**Connect your NextCloud account to your Cozy to**\n\n- access in just one click to your NextCloud storage space from Cozy Drive\n\n**Access your Nextcloud Drive directly in your personal Drive**\n\nWith this connector, your Cozy becomes part of your everyday life, making it easy to access all your Nextcloud accounts! Connect and access all your different online storage spaces in a single click, directly from the Cozy Drive application.\n\n<br>**Configuration**\n\nTo connect your account, all you need to do is enter the following in the fields :\n- the url of the NextCloud server\n- your login to access your NextCloud",
       "permissions": {
         "files": {
           "description": "Required to save the files"
@@ -71,5 +71,6 @@
       }
     }
   },
+  "on_delete_account": "onDeleteAccount.js",
   "manifest_version": "2"
 }
