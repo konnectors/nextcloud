@@ -27,11 +27,17 @@ async function start(fields) {
 }
 
 async function checkIfIsNextcloud(url) {
-  const checkReq = await request(`${url}/status.php`)
-  if (checkReq?.productname === 'Nextcloud') {
-    log('info', 'Nextcloud instance detected correctly')
-  } else {
-    log('error', 'Seems not a nextcloud instance')
+  try {
+    const checkReq = await request(`${url}/status.php`)
+
+    if (checkReq?.productname === 'Nextcloud') {
+      log('info', 'Nextcloud instance detected correctly')
+    } else {
+      log('error', 'Seems not a nextcloud instance')
+      throw new Error(errors.LOGIN_FAILED)
+    }
+  } catch (e) {
+    // Maybe an nextcloud specific error could be thrown here in future
     throw new Error(errors.LOGIN_FAILED)
   }
 }
@@ -70,8 +76,12 @@ async function createSharedDrivesDirectory() {
 }
 
 function cleanUrl(rawUrl) {
-  const url = new URL(rawUrl)
-  // We force usage of https here if the user forget it
-  // We keep the port number if present
-  return `https://${url.host}/`
+  try {
+    const url = new URL(rawUrl)
+    return `https://${url.host}/`
+    // We force usage of https here if the user forget it
+    // We keep the port number if present
+  } catch (e) {
+    throw new Error(errors.LOGIN_FAILED)
+  }
 }
