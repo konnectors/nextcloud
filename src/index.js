@@ -10,9 +10,10 @@ const {
   cozyClient
 } = require('cozy-konnector-libs')
 
+const cheerio = require('cheerio')
 const request = requestFactory({
   cheerio: false,
-  json: true,
+  json: false,
   jar: true,
   debug: false
 })
@@ -20,39 +21,26 @@ const request = requestFactory({
 module.exports = new BaseKonnector(start)
 
 async function start(fields) {
-  const url = cleanUrl(fields.url)
-  await checkIfIsNextcloud(url)
+  const { instanceUrl, instanceName } = await checkAndcleanUrl(fields.url)
   const folderPath = await createSharedDrivesDirectory()
-  await createShortcut.bind(this)(url, folderPath, fields.login)
+  await createShortcut.bind(this)(
+    instanceUrl,
+    instanceName,
+    folderPath,
+    fields.login
+  )
 }
 
-async function checkIfIsNextcloud(url) {
-  try {
-    const checkReq = await request(`${url}/status.php`)
-
-    if (checkReq?.productname === 'Nextcloud') {
-      log('info', 'Nextcloud instance detected correctly')
-    } else {
-      log('error', 'Seems not a nextcloud instance')
-      throw new Error(errors.LOGIN_FAILED)
-    }
-  } catch (e) {
-    // Maybe an nextcloud specific error could be thrown here in future
-    throw new Error(errors.LOGIN_FAILED)
-  }
-}
-
-async function createShortcut(url, folderPath, login) {
-  const instance = `${new URL(url).host}`
+async function createShortcut(url, instanceName, folderPath, login) {
   await this.saveFiles(
     [
       {
-        nextcloudInstance: instance,
-        filename: `${instance} (Nextcloud).url`,
+        nextcloudInstance: url,
+        filename: `${instanceName} (Nextcloud).url`,
         filestream: `[InternetShortcut]\nURL=${url}`,
         fileAttributes: {
           metadata: {
-            instance
+            instanceName: instanceName
           }
         }
       }
@@ -75,13 +63,44 @@ async function createSharedDrivesDirectory() {
   return sharedDriveDir.attributes.path
 }
 
-function cleanUrl(rawUrl) {
+async function checkAndcleanUrl(rawUrl) {
   try {
     const url = new URL(rawUrl)
-    return `https://${url.host}/`
-    // We force usage of https here if the user forget it
-    // We keep the port number if present
+    // We force usage of https here if the user forget it or use http://
+    // We keep the port number if present, we keep the path if present
+    const userUrl = `https://${url.host}${url.pathname}`
+    const loginReq = await request({
+      uri: userUrl,
+      resolveWithFullResponse: true
+    })
+    // We get now the login url
+    const loginUrl = loginReq.request.uri.href
+    // Removing the 'login' word in path
+    let instanceUrl
+    if (loginUrl.endsWith('login')) {
+      instanceUrl = loginUrl.slice(0, -5)
+    } else {
+      instanceUrl = loginUrl
+    }
+    log('debug', `Instance url detected: ${instanceUrl}`)
+    // Extracting instance Name
+    const $ = cheerio.load(loginReq.body)
+    const instanceName = $('meta[property="og:title"]').attr('content')
+    log('debug', `Instance name detected: ${instanceName}`)
+    // Confirming it is a nextcloud
+    const checkReq = await request({
+      uri: `${instanceUrl}/status.php`,
+      json: true
+    })
+    if (checkReq?.productname === 'Nextcloud') {
+      log('info', 'Nextcloud instance detected correctly')
+    } else {
+      log('error', 'Seems not a nextcloud instance')
+      throw new Error(errors.LOGIN_FAILED)
+    }
+    return { instanceUrl, instanceName }
   } catch (e) {
+    // Maybe a special error here on nextcloud url could be better understood
     throw new Error(errors.LOGIN_FAILED)
   }
 }
