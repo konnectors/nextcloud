@@ -8,7 +8,7 @@
   "source": "git@github.com:konnectors/nextcloud.git",
   "editor": "Cozy",
   "categories": [
-    "online_services"
+    "clouds"
   ],
   "fields": {
     "login": {
