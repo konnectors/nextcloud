@@ -76,17 +76,35 @@ async function checkAndcleanUrl(rawUrl) {
     })
     // We get now the login url
     const loginUrl = loginReq.request.uri.href
-    // Removing the 'login' word in path
+    // Removing the 'login' word in path because cozy-stack will need
+    // the webdav endpoint
     let instanceUrl
     if (loginUrl.endsWith('login')) {
+      // This method should garantee the usage of a subPath like
+      // https://example.com/nextcloud/
       instanceUrl = loginUrl.slice(0, -5)
+    } else if (loginUrl.includes('/saml/')) {
+      // SAML auth activated. We keep the url provided as this.
+      // Keep duplicate
+      instanceUrl = userUrl
     } else {
-      instanceUrl = loginUrl
+      // By default use the url provided
+      instanceUrl = userUrl
     }
     log('debug', `Instance url detected: ${instanceUrl}`)
     // Extracting instance Name
+    let instanceName
     const $ = cheerio.load(loginReq.body)
-    const instanceName = $('meta[property="og:title"]').attr('content')
+    instanceName = $('meta[property="og:title"]').attr('content')
+
+    // Try fallback for nextcloud with alternative auth
+    // Ex: https://cloud.colleges.sib.fr
+    if (instanceName === undefined) {
+      instanceName = $('p.info')
+        .html()
+        .match(/–(.*)<br>/)[1]
+        .trim()
+    }
     log('debug', `Instance name detected: ${instanceName}`)
     // Confirming it is a nextcloud
     const checkReq = await request({
