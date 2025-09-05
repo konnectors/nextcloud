@@ -119,6 +119,7 @@ async function checkAndcleanUrl(rawUrl) {
     }
     return { instanceUrl, instanceName }
   } catch (e) {
+    log('error', `Error while checking url: ${e.message}`)
     // Maybe a special error here on nextcloud url could be better understood
     throw new Error(errors.LOGIN_FAILED)
   }
