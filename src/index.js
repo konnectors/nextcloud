@@ -32,7 +32,7 @@ async function start(fields) {
 }
 
 async function createShortcut(url, instanceName, folderPath, login) {
-  const savedFiles = await this.saveFiles(
+  await this.saveFiles(
     [
       {
         nextcloudInstance: url,
@@ -52,7 +52,6 @@ async function createShortcut(url, instanceName, folderPath, login) {
       sourceAccountIdentifier: login
     }
   )
-  await addFavoriteToShortcuts(savedFiles)
 }
 
 async function createSharedDrivesDirectory() {
@@ -122,30 +121,4 @@ async function checkAndcleanUrl(rawUrl) {
     // Maybe a special error here on nextcloud url could be better understood
     throw new Error(errors.LOGIN_FAILED)
   }
-}
-
-async function addFavoriteToShortcuts(savedFiles) {
-  log('debug', 'addFavoriteToShortcuts starts')
-  const client = cozyClient.new
-  for (const savedFile of savedFiles) {
-    const fileFromCozy = await client
-      .collection('io.cozy.files')
-      .get(savedFile.fileDocument._id)
-    if (!fileFromCozy.data.cozyMetadata.favorite) {
-      await client.save({
-        ...fileFromCozy.data,
-        cozyMetadata: {
-          ...fileFromCozy.data.cozyMetadata,
-          favorite: true
-        }
-      })
-    }
-  }
-
-  // Keeping this around to delete files if needed during dev due to files being invisible on the cozy
-  // for (const savedFile of savedFiles) {
-  //   await cozyClient.new
-  //     .collection('io.cozy.files')
-  //     .deleteFilePermanently(savedFile.fileDocument._id)
-  // }
 }
