@@ -37,7 +37,7 @@
     "initGithubAction": "./bin/init_github_action"
   },
   "dependencies": {
-    "cheerio": "^1.0.0-rc.12",
+    "cheerio": "1.0.0-rc.12",
     "cozy-konnector-libs": "5.13.0"
   },
   "devDependencies": {
